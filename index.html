@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MyFatoorah Payment Bridge</title>
+</head>
+<body>
+    <script>
+        window.addEventListener('message', async function(event) {
+            try {
+                const { endpoint, data, token, messageId } = event.data;
+                
+                const response = await fetch(`https://apitest.myfatoorah.com/v2/${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const responseData = await response.json();
+                
+                // Send the response back to Flutter
+                window.parent.postMessage({
+                    messageId,
+                    success: true,
+                    data: responseData
+                }, '*');
+                
+            } catch (error) {
+                // Send error back to Flutter
+                window.parent.postMessage({
+                    messageId,
+                    success: false,
+                    error: error.message
+                }, '*');
+            }
+        });
+    </script>
+</body>
+</html>
